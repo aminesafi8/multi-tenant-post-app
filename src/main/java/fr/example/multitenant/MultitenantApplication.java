@@ -24,7 +24,7 @@ public class MultitenantApplication {
 
                 final Post post = Post.builder()
                         .title(faker.job().title())
-                        .content(faker.company().bs())
+                        .content(faker.job().field())
                         .tenantId(String.format("TENANT-%s", i))
                         .build();
 
