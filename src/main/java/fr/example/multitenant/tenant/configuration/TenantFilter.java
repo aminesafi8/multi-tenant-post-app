@@ -20,23 +20,24 @@ public class TenantFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
         final HttpServletRequest httpRequest = (HttpServletRequest) request;
         final String tenant = computeTenant(httpRequest);
+
         validate(tenant);
         setTenantContext(tenant);
-        proceed(request, response, chain);
-        clearTenantContext(tenant);
+
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            clearTenantContext(tenant);
+        }
     }
 
     private void clearTenantContext(final String tenant) {
-        log.debug("Clearing [{}] from tenant context", tenant);
+        log.debug("Clearing tenant context [{}]", tenant);
         TenantContextHolder.clear();
     }
 
-    private void proceed(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
-        chain.doFilter(request, response);
-    }
-
     private void setTenantContext(final String tenant) {
-        log.debug("Tenant header is [{}] will be set to the context", tenant);
+        log.debug("Set the tenant header [{}] to the context", tenant);
         TenantContextHolder.setCurrentTenant(tenant);
     }
 
